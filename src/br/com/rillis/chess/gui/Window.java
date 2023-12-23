@@ -7,6 +7,7 @@ import br.com.rillis.chess.theory.Notation;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -63,10 +64,24 @@ public class Window extends JFrame{
                     System.exit(0);
                 }
                 if(e.getKeyCode()==KeyEvent.VK_C){
-                    System.out.println(table);
+                    StringSelection stringSelection = new StringSelection(table.toString());
+                    java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(stringSelection, null);
+                    JOptionPane.showMessageDialog(null, "Table code copied to clipboard!");
                 }
                 if(e.getKeyCode()==KeyEvent.VK_R){
                     table.reset();
+                }
+                if(e.getKeyCode()==KeyEvent.VK_F){
+                    StringSelection stringSelection = new StringSelection(table.toFEN());
+                    java.awt.datatransfer.Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(stringSelection, null);
+                    JOptionPane.showMessageDialog(null, "FEN copied to clipboard!");
+                }
+                if(e.getKeyCode()==KeyEvent.VK_L){
+                    String code = JOptionPane.showInputDialog("Paste table code here:");
+                    if(code==null || code.isEmpty()) return;
+                    table.load(code);
                 }
             }
         });

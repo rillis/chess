@@ -5,6 +5,7 @@ import br.com.rillis.chess.theory.Notation;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class Table {
@@ -315,5 +316,69 @@ public class Table {
                 selected = null;
             }
         }
+    }
+
+
+    public String toFEN(){
+        StringBuilder fen = new StringBuilder();
+        for(int i=0; i<table.length; i++){
+            int empty = 0;
+            for(int j=0; j<table[i].length; j++){
+                if(table[i][j]==null){
+                    empty++;
+                }else{
+                    if(empty>0){
+                        fen.append(empty);
+                        empty = 0;
+                    }
+                    fen.append(table[i][j].getColor().equals(Piece.WHITE) ? table[i][j].getType().toUpperCase() : table[i][j].getType().toLowerCase());
+                }
+            }
+            if(empty>0){
+                fen.append(empty);
+            }
+            if(i<table.length-1){
+                fen.append("/");
+            }
+        }
+        fen.append(" ").append(whiteTurn?"w":"b");
+
+        String castling = "";
+
+        if (getPiece("e1") != null && getPiece("h1") != null && getPiece("e1").getType().equals(Piece.KING) && !getPiece("e1").hasMoved() && getPiece("h1").getType().equals(Piece.ROOK) && !getPiece("h1").hasMoved()){
+            castling += "K";
+        }
+        if (getPiece("e1") != null && getPiece("a1") != null && getPiece("e1").getType().equals(Piece.KING) && !getPiece("e1").hasMoved() && getPiece("a1").getType().equals(Piece.ROOK) && !getPiece("a1").hasMoved()){
+            castling += "Q";
+        }
+        if (getPiece("e8") != null && getPiece("h8") != null && getPiece("e8").getType().equals(Piece.KING) && !getPiece("e8").hasMoved() && getPiece("h8").getType().equals(Piece.ROOK) && !getPiece("h8").hasMoved()){
+            castling += "k";
+        }
+        if (getPiece("e8") != null && getPiece("a8") != null && getPiece("e8").getType().equals(Piece.KING) && !getPiece("e8").hasMoved() && getPiece("a8").getType().equals(Piece.ROOK) && !getPiece("a8").hasMoved()){
+            castling += "q";
+        }
+        if(castling.isEmpty()) castling = "-";
+        fen.append(" ").append(castling);
+
+        String enPassant = "-";
+        if(movedLast!=null && movedLast.getType().equals(Piece.PAWN) ){
+            if(movedLast.isEnPassant()) {
+                enPassant = Notation.getNotation(Notation.getCoordinate(movedLast.getPosition())[0]+ (movedLast.getColor().equals(Piece.WHITE) ? 1 : -1), Notation.getCoordinate(movedLast.getPosition())[1]);
+            }
+        }
+        if(enPassant.isEmpty()) enPassant = "-";
+        fen.append(" ").append(enPassant);
+
+        fen.append(" 0 1");
+
+        return fen.toString();
+    }
+
+    public void load(String code) {
+        Table newTable = new Table(code);
+        this.table = newTable.table;
+        this.whiteTurn = newTable.whiteTurn;
+        this.selected = null;
+        this.movedLast = null;
     }
 }
